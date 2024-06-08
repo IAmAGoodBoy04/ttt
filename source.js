@@ -1,4 +1,4 @@
-const gameboard=(function(){
+let gameboard=(function(){
     let board=Array.from(Array(3),()=> new Array(3).fill(0));
     function place(symbol,i,j){
         if(0<=i<3 && 0<=j<3)
@@ -24,7 +24,7 @@ const gameboard=(function(){
         let draw=1;
         for(i=0;i<3;i++){
             for(j=0;j<3;j++){
-                if(board[i][j]!==0){
+                if(board[i][j]===0){
                     draw=0;
                     break;
                 }
@@ -65,9 +65,18 @@ function updateBoard(){
         temp=cells[i].getAttribute("id");
         s=gameboard.getSym(temp.charAt(1),temp.charAt(2));
         if(s!==0)
-        cells[i].innerHTML=`<img src="./resources/${s}.svg" height="42px" width="auto">`;
+        cells[i].innerHTML=`<img src="./resources/${s}.svg" width="50px" height="50px">`;
     }
 
+}
+
+function addwin(cell){
+    let cellim=cell.children[0];
+    cellim.classList.add("winner");
+}
+function adddraw(cell){
+    let cellim=cell.children[0];
+    cellim.classList.add("drawer");
 }
 
 function colorit(){
@@ -76,42 +85,48 @@ function colorit(){
     let winner=ans.winner;
     let temp;
     if(winner===-1){
-        textbox.setAttribute("color","lightred");
+        textbox.style.color="lightgrey";
     }
     else if(winner==='X'){
-        textbox.setAttribute("color","lightcoral");
+        textbox.style.color="lightcoral";
     }
     else{
-        textbox.setAttribute("color","lightblue");
+        textbox.style.color="lightblue";
     }
     let cells=document.querySelectorAll(".boardcell");
     cells.forEach((cell)=>{
         temp=cell.getAttribute("id");
         let s=temp.substring(1);
-        console.log(s);
         if(ans.dir===4 && (s==="20" || s==="11" || s==="02")){
-            cell.classList.add("winner");
+            addwin(cell);
         }
         if(ans.dir===3 && (s==="00" || s==="11" || s==="22")){
-            cell.classList.add("winner");
+            addwin(cell);
         }
-        if(ans.dir===2 && temp.charAt(2)===ans.index){
-            cell.classList.add("winner");
+        if(ans.dir===2 && (temp[2]-'0')===ans.index){
+            addwin(cell);
         }
-        if(ans.dir===1 && temp.charAt(1)===ans.index){
-            cell.classList.add("winner");
+        if(ans.dir===1 && temp[1]===ans.index){
+            addwin(cell);
+        }
+        if(winner===-1){
+            adddraw(cell);
         }
     })
 }
 
 function uncolorit(){
     let textbox=document.querySelector(".text");
-    textbox.removeAttribute("color");
+    textbox.style.color="";
     let cells=document.querySelectorAll(".boardcell");
     cells.forEach((cell)=>{
         cell.innerHTML="";
-        cell.classList.remove("winner");
     })
+}
+
+function freezeboard(){
+    let b=document.querySelector(".board");
+    b.replaceWith(b.cloneNode(true));
 }
 
 
@@ -144,12 +159,12 @@ function playGame(p1,p2){
                 else{
                     str=`${p2.name}'s turn`;
                 }
-
-                if(gameboard.check().winner!==0){
-                    if(gameboard.check().winner===-1){
+                let chk=gameboard.check();
+                if(chk.winner!==0){
+                    if(chk.winner===-1){
                         str="Draw";
                     }
-                    else if(p1.symbol==gameboard.check().winner){
+                    else if(p1.symbol===chk.winner){
                         p1.score++;
                         str=`${p1.name} wins`;
                     }
@@ -157,13 +172,13 @@ function playGame(p1,p2){
                         p2.score++;
                         str=`${p2.name} wins`;
                     }
-                    textbox.textContent=str;
+                    textbox.textContent=str+", press reset to play again.";
                     colorit();
-                    cells.forEach((cell)=>{
-                        cell.removeEventListener("click",handler);
-                    })
+                    freezeboard();
                 }
-                textbox.textContent=str;
+                else{
+                    textbox.textContent=str;
+                }
             }
         })
     })
@@ -195,8 +210,8 @@ function main(){
 
     let p1img=document.querySelector(".p1 div");
     let p2img=document.querySelector(".p2 div");
-    p1img.innerHTML=`<img src="./resources/${playerOne.symbol}.svg" height="42px" width="auto">`;
-    p2img.innerHTML=`<img src="./resources/${playerTwo.symbol}.svg" height="42px" width="auto">`;
+    p1img.innerHTML=`<img src="./resources/${playerOne.symbol}.svg" width="50px" height="50px">`;
+    p2img.innerHTML=`<img src="./resources/${playerTwo.symbol}.svg" width="50px" height="50px">`;
 
 
     let board=document.querySelector(".board");
