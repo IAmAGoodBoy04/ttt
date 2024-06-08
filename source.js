@@ -106,7 +106,7 @@ function colorit(){
         if(ans.dir===2 && (temp[2]-'0')===ans.index){
             addwin(cell);
         }
-        if(ans.dir===1 && temp[1]===ans.index){
+        if(ans.dir===1 && (temp[1]-'0')===ans.index){
             addwin(cell);
         }
         if(winner===-1){
